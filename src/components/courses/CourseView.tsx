@@ -5,6 +5,7 @@ import { Progress } from "../ui/progress";
 import { Card, CardContent } from "../ui/card";
 import { Separator } from "../ui/separator";
 import { PlayCircle, Clock, CheckCircle } from "lucide-react";
+import LessonContent from "./LessonContent";
 import { useSupabase } from "@/hooks/useSupabase";
 
 interface LessonItemProps {
@@ -44,12 +45,30 @@ const LessonItem = ({
 
 export default function CourseView() {
   const { courseId } = useParams();
-  const { courses, progress } = useSupabase();
+  const { courses, progress, loading } = useSupabase();
   const [activeLesson, setActiveLesson] = React.useState<string | null>(null);
 
   const course = courses.find((c) => c.id === courseId);
 
-  if (!course) return <div>Course not found</div>;
+  React.useEffect(() => {
+    // Set the first lesson as active by default
+    if (course?.lessons?.length > 0 && !activeLesson) {
+      setActiveLesson(course.lessons[0].id);
+    }
+  }, [course]);
+
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-screen">
+        Loading...
+      </div>
+    );
+  if (!course)
+    return (
+      <div className="flex items-center justify-center h-screen">
+        Course not found
+      </div>
+    );
 
   const completedLessons = course.lessons?.filter((lesson) =>
     progress.some((p) => p.lesson_id === lesson.id && p.completed),
@@ -83,16 +102,30 @@ export default function CourseView() {
 
           {/* Active Lesson Content */}
           {activeLesson && (
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-2xl font-semibold mb-4">
-                  {course.lessons?.find((l) => l.id === activeLesson)?.title}
-                </h2>
-                <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                  <PlayCircle className="h-16 w-16 text-primary" />
-                </div>
-              </CardContent>
-            </Card>
+            <LessonContent
+              lessonId={activeLesson}
+              courseId={course.id}
+              onComplete={() => {
+                // Refresh progress data
+                window.location.reload();
+              }}
+              onNext={() => {
+                const currentIndex =
+                  course.lessons?.findIndex((l) => l.id === activeLesson) ?? -1;
+                const nextLesson = course.lessons?.[currentIndex + 1];
+                if (nextLesson) {
+                  setActiveLesson(nextLesson.id);
+                }
+              }}
+              onPrevious={() => {
+                const currentIndex =
+                  course.lessons?.findIndex((l) => l.id === activeLesson) ?? -1;
+                const prevLesson = course.lessons?.[currentIndex - 1];
+                if (prevLesson) {
+                  setActiveLesson(prevLesson.id);
+                }
+              }}
+            />
           )}
         </div>
 

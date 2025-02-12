@@ -70,6 +70,7 @@ const Home = () => {
             ) : (
               <CourseGrid
                 courses={courses.map((course) => ({
+                  id: course.id,
                   title: course.title,
                   description: course.description || "",
                   progress: calculateProgress(course.lessons, progress),

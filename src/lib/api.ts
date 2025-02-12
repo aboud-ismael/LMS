@@ -61,14 +61,18 @@ export const getUserAchievements = async (userId: string) => {
 
 // Update progress
 export const updateLessonProgress = async (
-  userId: string,
   lessonId: string,
   completed: boolean,
 ) => {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("No user found");
+
   const { data, error } = await supabase
     .from("user_progress")
     .upsert({
-      user_id: userId,
+      user_id: user.id,
       lesson_id: lessonId,
       completed,
       completed_at: completed ? new Date().toISOString() : null,

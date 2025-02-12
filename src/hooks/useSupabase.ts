@@ -4,13 +4,14 @@ import {
   getUpcomingLessons,
   getUserProgress,
   getUserAchievements,
+  updateLessonProgress as apiUpdateLessonProgress,
 } from "@/lib/api";
 
 import { useAuth } from "@/components/auth/AuthProvider";
 
 export const useSupabase = () => {
   const { user } = useAuth();
-  const [courses, setCourses] = useState([]);
+  const [courses, setCourses] = useState<any[]>([]);
   const [upcomingLessons, setUpcomingLessons] = useState([]);
   const [progress, setProgress] = useState([]);
   const [achievements, setAchievements] = useState([]);
@@ -18,6 +19,7 @@ export const useSupabase = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!user) return;
     const fetchData = async () => {
       try {
         const [coursesData, lessonsData, progressData, achievementsData] =
@@ -40,7 +42,27 @@ export const useSupabase = () => {
     };
 
     fetchData();
-  }, []);
+  }, [user]);
 
-  return { courses, upcomingLessons, progress, achievements, loading, error };
+  const updateLessonProgress = async (lessonId: string, completed: boolean) => {
+    try {
+      await apiUpdateLessonProgress(lessonId, completed);
+      // Refresh progress data
+      const newProgress = await getUserProgress(user?.id);
+      setProgress(newProgress);
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
+  };
+
+  return {
+    courses,
+    upcomingLessons,
+    progress,
+    achievements,
+    loading,
+    error,
+    updateLessonProgress,
+  };
 };
