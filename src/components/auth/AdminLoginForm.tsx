@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useAuth } from "./AuthProvider";
-import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { GraduationCap } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { useNavigate } from "react-router-dom";
 
-export default function LoginForm() {
+export default function AdminLoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -17,10 +16,14 @@ export default function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      if (email !== "ismaelaboud@gmail.com") {
+        setError("You do not have admin access");
+        return;
+      }
       await signIn(email, password);
-      navigate("/");
+      // After successful login, force reload to update auth state
+      window.location.href = "/admin";
     } catch (error) {
-      console.error("Login error:", error);
       setError("Invalid email or password");
     }
   };
@@ -31,14 +34,14 @@ export default function LoginForm() {
         <div className="flex justify-center mb-2">
           <GraduationCap className="h-12 w-12 text-primary" />
         </div>
-        <CardTitle>Welcome Back</CardTitle>
+        <CardTitle>Admin Login</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Input
               type="email"
-              placeholder="Email"
+              placeholder="Admin Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -55,24 +58,8 @@ export default function LoginForm() {
           </div>
           {error && <p className="text-sm text-red-500">{error}</p>}
           <Button type="submit" className="w-full">
-            Sign In
+            Sign In as Admin
           </Button>
-          <div className="flex justify-between text-sm">
-            <Button
-              variant="link"
-              onClick={() => (window.location.href = "/signup")}
-              className="px-0"
-            >
-              Create Account
-            </Button>
-            <Button
-              variant="link"
-              onClick={() => (window.location.href = "/reset-password")}
-              className="px-0"
-            >
-              Forgot Password?
-            </Button>
-          </div>
         </form>
       </CardContent>
     </Card>

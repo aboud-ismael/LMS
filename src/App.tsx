@@ -6,15 +6,20 @@ import SignUpForm from "./components/auth/SignUpForm";
 import ResetPasswordForm from "./components/auth/ResetPasswordForm";
 import ProfileForm from "./components/profile/ProfileForm";
 import CourseView from "./components/courses/CourseView";
+import AdminDashboard from "./components/admin/AdminDashboard";
+import AdminLoginForm from "./components/auth/AdminLoginForm";
 import { useAuth } from "./components/auth/AuthProvider";
 import routes from "tempo-routes";
 
 function App() {
-  const { session } = useAuth();
+  const { session, isAdmin } = useAuth();
 
   return (
     <Suspense fallback={<p>Loading...</p>}>
       <>
+        {/* Tempo routes need to be before other routes */}
+        {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
+
         <Routes>
           <Route
             path="/"
@@ -23,13 +28,9 @@ function App() {
           <Route
             path="/login"
             element={
-              !session ? (
-                <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                  <LoginForm />
-                </div>
-              ) : (
-                <Navigate to="/" replace />
-              )
+              <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <LoginForm />
+              </div>
             }
           />
           <Route
@@ -70,8 +71,8 @@ function App() {
               session ? <CourseView /> : <Navigate to="/login" replace />
             }
           />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
-        {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
       </>
     </Suspense>
   );

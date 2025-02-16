@@ -3,6 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { CheckCircle, ArrowLeft, ArrowRight } from "lucide-react";
 import { useSupabase } from "@/hooks/useSupabase";
+import CodeLesson from "./lesson-types/CodeLesson";
+import QuizLesson from "./lesson-types/QuizLesson";
+import { supabase } from "@/lib/supabase";
 
 interface LessonContentProps {
   lessonId: string;
@@ -10,6 +13,13 @@ interface LessonContentProps {
   onComplete: () => void;
   onNext?: () => void;
   onPrevious?: () => void;
+}
+
+interface Lesson {
+  id: string;
+  type: "code" | "quiz" | "text";
+  content: any;
+  title: string;
 }
 
 export default function LessonContent({
@@ -21,6 +31,26 @@ export default function LessonContent({
 }: LessonContentProps) {
   const { updateLessonProgress } = useSupabase();
   const [loading, setLoading] = React.useState(false);
+  const [lesson, setLesson] = React.useState<Lesson | null>(null);
+
+  React.useEffect(() => {
+    const fetchLesson = async () => {
+      const { data, error } = await supabase
+        .from("lessons")
+        .select("*")
+        .eq("id", lessonId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching lesson:", error);
+        return;
+      }
+
+      setLesson(data);
+    };
+
+    fetchLesson();
+  }, [lessonId]);
 
   const handleComplete = async () => {
     try {
@@ -40,19 +70,58 @@ export default function LessonContent({
         <CardTitle>Lesson Content</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Lesson content would go here */}
-        <div className="prose max-w-none">
-          <h2>Introduction</h2>
-          <p>
-            This is where the lesson content would go. It could include text,
-            images, code examples, and interactive elements.
-          </p>
-          <pre className="bg-muted p-4 rounded-lg">
-            <code>{`// Example code
-const greeting = "Hello, World!";
-console.log(greeting);`}</code>
-          </pre>
-        </div>
+        {/* Dynamic lesson content based on type */}
+        {lesson ? (
+          <>
+            {lesson.type === "code" && lesson.content && (
+              <CodeLesson
+                content={{
+                  explanation:
+                    lesson.content.explanation || "No explanation provided",
+                  code: lesson.content.code || "// No code provided",
+                  language: lesson.content.language || "javascript",
+                }}
+              />
+            )}
+            {lesson.type === "quiz" && lesson.content && (
+              <QuizLesson
+                content={{
+                  question: lesson.content.question || "No question provided",
+                  options: lesson.content.options || ["No options provided"],
+                  correctAnswer: lesson.content.correctAnswer || 0,
+                }}
+                onComplete={(correct) => {
+                  if (correct) {
+                    handleComplete();
+                  }
+                }}
+              />
+            )}
+            {lesson.type === "text" && lesson.content && (
+              <div className="prose max-w-none space-y-4">
+                <h2 className="text-xl font-semibold">
+                  {lesson.content.title || "Lesson Content"}
+                </h2>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: lesson.content.content || "No content provided",
+                  }}
+                />
+              </div>
+            )}
+            {(!lesson.type || !lesson.content) && (
+              <div className="prose max-w-none">
+                <p>This lesson's content is not properly formatted.</p>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-40 bg-gray-200 rounded"></div>
+          </div>
+        )}
 
         <div className="flex items-center justify-between pt-6">
           <Button variant="outline" onClick={onPrevious} disabled={!onPrevious}>

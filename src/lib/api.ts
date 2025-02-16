@@ -19,12 +19,18 @@ export const getCourses = async () => {
 
 // Lessons
 export const getUpcomingLessons = async (userId: string, limit = 4) => {
+  // Include type and content in the selection
+
   const { data, error } = await supabase
     .from("lessons")
     .select(
       `
-      *,
-      courses!inner(*),
+      id,
+      title,
+      duration,
+      type,
+      content,
+      courses!inner(id, title),
       user_progress!left(*)
     `,
     )

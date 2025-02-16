@@ -9,11 +9,12 @@ export default function SignUpForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  // Using supabase directly for sign up
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setMessage("");
     try {
       if (password.length < 6) {
         setError("Password must be at least 6 characters long");
@@ -27,7 +28,7 @@ export default function SignUpForm() {
         },
       });
       if (error) throw error;
-      setError("Check your email to confirm your account");
+      setMessage("Check your email to confirm your account");
     } catch (error: any) {
       console.error("Sign up error:", error);
       setError(error.message || "Error creating account");
@@ -63,9 +64,19 @@ export default function SignUpForm() {
             />
           </div>
           {error && <p className="text-sm text-red-500">{error}</p>}
+          {message && <p className="text-sm text-green-500">{message}</p>}
           <Button type="submit" className="w-full">
             Sign Up
           </Button>
+          <div className="text-center">
+            <Button
+              variant="link"
+              onClick={() => (window.location.href = "/login")}
+              className="px-0"
+            >
+              Already have an account? Sign In
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>
