@@ -62,28 +62,34 @@ export type Database = {
       }
       lessons: {
         Row: {
+          content: Json | null
           course_id: string | null
           created_at: string
           duration: number
           id: string
           order_index: number
           title: string
+          type: string | null
         }
         Insert: {
+          content?: Json | null
           course_id?: string | null
           created_at?: string
           duration: number
           id?: string
           order_index: number
           title: string
+          type?: string | null
         }
         Update: {
+          content?: Json | null
           course_id?: string | null
           created_at?: string
           duration?: number
           id?: string
           order_index?: number
           title?: string
+          type?: string | null
         }
         Relationships: [
           {
@@ -132,6 +138,7 @@ export type Database = {
           created_at: string
           id: string
           lesson_id: string | null
+          role: string | null
           user_id: string
         }
         Insert: {
@@ -141,6 +148,7 @@ export type Database = {
           created_at?: string
           id?: string
           lesson_id?: string | null
+          role?: string | null
           user_id: string
         }
         Update: {
@@ -150,6 +158,7 @@ export type Database = {
           created_at?: string
           id?: string
           lesson_id?: string | null
+          role?: string | null
           user_id?: string
         }
         Relationships: [
@@ -177,7 +186,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      lesson_type: "code" | "quiz" | "text"
     }
     CompositeTypes: {
       [_ in never]: never
