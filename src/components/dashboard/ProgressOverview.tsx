@@ -40,8 +40,8 @@ const ProgressOverview = ({
   return (
     <Card className="w-full bg-white">
       <CardContent className="p-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="w-full md:w-1/3">
+        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
+          <div className="w-full xl:w-1/3">
             <h2 className="text-xl font-semibold mb-2">Overall Progress</h2>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
@@ -52,9 +52,9 @@ const ProgressOverview = ({
             </div>
           </div>
 
-          <div className="w-full md:w-2/3">
+          <div className="w-full xl:w-2/3">
             <h2 className="text-xl font-semibold mb-4">Achievements</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
               {achievements.map((achievement) => (
                 <Badge
                   key={achievement.id}

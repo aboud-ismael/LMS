@@ -60,14 +60,14 @@ export default function LoginForm() {
           <div className="flex justify-between text-sm">
             <Button
               variant="link"
-              onClick={() => (window.location.href = "/signup")}
+              onClick={() => navigate("/signup")}
               className="px-0"
             >
               Create Account
             </Button>
             <Button
               variant="link"
-              onClick={() => (window.location.href = "/reset-password")}
+              onClick={() => navigate("/reset-password")}
               className="px-0"
             >
               Forgot Password?

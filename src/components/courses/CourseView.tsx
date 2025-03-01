@@ -6,6 +6,7 @@ import { Card, CardContent } from "../ui/card";
 import { Separator } from "../ui/separator";
 import { PlayCircle, Clock, CheckCircle } from "lucide-react";
 import LessonContent from "./LessonContent";
+import ProtectedRoute from "../auth/ProtectedRoute";
 import { useSupabase } from "@/hooks/useSupabase";
 
 interface LessonItemProps {
@@ -102,30 +103,34 @@ export default function CourseView() {
 
           {/* Active Lesson Content */}
           {activeLesson && (
-            <LessonContent
-              lessonId={activeLesson}
-              courseId={course.id}
-              onComplete={() => {
-                // Refresh progress data
-                window.location.reload();
-              }}
-              onNext={() => {
-                const currentIndex =
-                  course.lessons?.findIndex((l) => l.id === activeLesson) ?? -1;
-                const nextLesson = course.lessons?.[currentIndex + 1];
-                if (nextLesson) {
-                  setActiveLesson(nextLesson.id);
-                }
-              }}
-              onPrevious={() => {
-                const currentIndex =
-                  course.lessons?.findIndex((l) => l.id === activeLesson) ?? -1;
-                const prevLesson = course.lessons?.[currentIndex - 1];
-                if (prevLesson) {
-                  setActiveLesson(prevLesson.id);
-                }
-              }}
-            />
+            <ProtectedRoute>
+              <LessonContent
+                lessonId={activeLesson}
+                courseId={course.id}
+                onComplete={() => {
+                  // Refresh progress data
+                  window.location.reload();
+                }}
+                onNext={() => {
+                  const currentIndex =
+                    course.lessons?.findIndex((l) => l.id === activeLesson) ??
+                    -1;
+                  const nextLesson = course.lessons?.[currentIndex + 1];
+                  if (nextLesson) {
+                    setActiveLesson(nextLesson.id);
+                  }
+                }}
+                onPrevious={() => {
+                  const currentIndex =
+                    course.lessons?.findIndex((l) => l.id === activeLesson) ??
+                    -1;
+                  const prevLesson = course.lessons?.[currentIndex - 1];
+                  if (prevLesson) {
+                    setActiveLesson(prevLesson.id);
+                  }
+                }}
+              />
+            </ProtectedRoute>
           )}
         </div>
 

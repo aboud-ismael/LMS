@@ -6,9 +6,11 @@ import SignUpForm from "./components/auth/SignUpForm";
 import ResetPasswordForm from "./components/auth/ResetPasswordForm";
 import ProfileForm from "./components/profile/ProfileForm";
 import CourseView from "./components/courses/CourseView";
+import CoursesPage from "./components/courses/CoursesPage";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import AdminLoginForm from "./components/auth/AdminLoginForm";
 import { useAuth } from "./components/auth/AuthProvider";
+import ProtectedRoute from "./components/auth/ProtectedRoute.tsx";
 import routes from "tempo-routes";
 
 function App() {
@@ -16,14 +18,18 @@ function App() {
 
   return (
     <Suspense fallback={<p>Loading...</p>}>
-      <>
+      <div>
         {/* Tempo routes need to be before other routes */}
         {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
 
         <Routes>
           <Route
             path="/"
-            element={session ? <Home /> : <Navigate to="/login" replace />}
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/login"
@@ -56,24 +62,39 @@ function App() {
           <Route
             path="/profile"
             element={
-              session ? (
+              <ProtectedRoute>
                 <div className="min-h-screen flex items-center justify-center bg-gray-50">
                   <ProfileForm />
                 </div>
-              ) : (
-                <Navigate to="/login" replace />
-              )
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/courses"
+            element={
+              <ProtectedRoute>
+                <CoursesPage />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/courses/:courseId"
             element={
-              session ? <CourseView /> : <Navigate to="/login" replace />
+              <ProtectedRoute>
+                <CourseView />
+              </ProtectedRoute>
             }
           />
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requireAdmin>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
-      </>
+      </div>
     </Suspense>
   );
 }

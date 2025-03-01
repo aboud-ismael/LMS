@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { CheckCircle, ArrowLeft, ArrowRight } from "lucide-react";
 import { useSupabase } from "@/hooks/useSupabase";
+import { useAuth } from "../auth/AuthProvider";
 import CodeLesson from "./lesson-types/CodeLesson";
 import QuizLesson from "./lesson-types/QuizLesson";
 import { supabase } from "@/lib/supabase";
@@ -29,30 +30,42 @@ export default function LessonContent({
   onNext,
   onPrevious,
 }: LessonContentProps) {
+  const { session } = useAuth();
   const { updateLessonProgress } = useSupabase();
   const [loading, setLoading] = React.useState(false);
   const [lesson, setLesson] = React.useState<Lesson | null>(null);
+  const [isCompleted, setIsCompleted] = React.useState(false);
 
   React.useEffect(() => {
-    const fetchLesson = async () => {
-      const { data, error } = await supabase
+    const fetchLessonAndProgress = async () => {
+      // Get lesson data
+      const { data: lessonData, error: lessonError } = await supabase
         .from("lessons")
         .select("*")
         .eq("id", lessonId)
         .single();
 
-      if (error) {
-        console.error("Error fetching lesson:", error);
+      if (lessonError) {
+        console.error("Error fetching lesson:", lessonError);
         return;
       }
 
-      setLesson(data);
+      // Get progress data
+      const { data: progressData } = await supabase
+        .from("user_progress")
+        .select("*")
+        .eq("lesson_id", lessonId)
+        .single();
+
+      setLesson(lessonData);
+      setIsCompleted(progressData?.completed || false);
     };
 
-    fetchLesson();
+    fetchLessonAndProgress();
   }, [lessonId]);
 
   const handleComplete = async () => {
+    if (!session) return;
     try {
       setLoading(true);
       await updateLessonProgress(lessonId, true);
@@ -128,9 +141,17 @@ export default function LessonContent({
             <ArrowLeft className="mr-2 h-4 w-4" /> Previous
           </Button>
 
-          <Button onClick={handleComplete} disabled={loading} className="px-8">
+          <Button
+            onClick={handleComplete}
+            disabled={loading || isCompleted}
+            className="px-8"
+          >
             <CheckCircle className="mr-2 h-4 w-4" />
-            {loading ? "Marking as Complete..." : "Mark as Complete"}
+            {loading
+              ? "Marking as Complete..."
+              : isCompleted
+                ? "Completed"
+                : "Mark as Complete"}
           </Button>
 
           <Button variant="outline" onClick={onNext} disabled={!onNext}>
