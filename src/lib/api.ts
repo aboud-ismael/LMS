@@ -5,6 +5,7 @@ export type Course = Database["public"]["Tables"]["courses"]["Row"];
 export type Lesson = Database["public"]["Tables"]["lessons"]["Row"];
 export type UserProgress = Database["public"]["Tables"]["user_progress"]["Row"];
 export type Achievement = Database["public"]["Tables"]["achievements"]["Row"];
+export type Enrollment = Database["public"]["Tables"]["enrollments"]["Row"];
 
 // Courses
 export const getCourses = async () => {
@@ -49,6 +50,38 @@ export const getUserProgress = async (userId: string) => {
     .from("user_progress")
     .select("*")
     .eq("user_id", userId);
+
+  if (error) throw error;
+  return data;
+};
+
+// Enrollments
+export const enrollInCourse = async (courseId: string) => {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("No user found");
+
+  const { data, error } = await supabase
+    .from("enrollments")
+    .insert([{ user_id: user.id, course_id: courseId }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const getEnrollments = async () => {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("No user found");
+
+  const { data, error } = await supabase
+    .from("enrollments")
+    .select("*")
+    .eq("user_id", user.id);
 
   if (error) throw error;
   return data;

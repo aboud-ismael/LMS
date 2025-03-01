@@ -2,6 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { useAuth } from "../auth/AuthProvider";
+import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
+import { useResponsive } from "@/hooks/useResponsive";
 import {
   Home,
   BookOpen,
@@ -9,6 +11,7 @@ import {
   Settings,
   LogOut,
   GraduationCap,
+  Menu,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -16,7 +19,7 @@ interface SidebarProps {
   onNavigate?: (item: string) => void;
 }
 
-const Sidebar = ({ activeItem = "home", onNavigate }: SidebarProps) => {
+const SidebarContent = ({ activeItem = "home", onNavigate }: SidebarProps) => {
   const navigate = useNavigate();
   const { signOut } = useAuth();
 
@@ -31,7 +34,7 @@ const Sidebar = ({ activeItem = "home", onNavigate }: SidebarProps) => {
   };
 
   return (
-    <div className="w-[280px] h-screen bg-white border-r border-gray-200 flex flex-col">
+    <div className="h-full flex flex-col bg-white">
       <div className="p-6">
         <div className="flex items-center gap-2 mb-6">
           <GraduationCap className="h-6 w-6 text-primary" />
@@ -87,6 +90,33 @@ const Sidebar = ({ activeItem = "home", onNavigate }: SidebarProps) => {
           Sign Out
         </Button>
       </div>
+    </div>
+  );
+};
+
+const Sidebar = (props: SidebarProps) => {
+  const { isMobile } = useResponsive();
+
+  if (isMobile) {
+    return (
+      <div className="fixed top-4 right-4 z-50">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="icon" className="bg-white">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[280px] p-0 border-r">
+            <SidebarContent {...props} />
+          </SheetContent>
+        </Sheet>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed top-0 left-0 w-[280px] h-screen border-r border-gray-200">
+      <SidebarContent {...props} />
     </div>
   );
 };

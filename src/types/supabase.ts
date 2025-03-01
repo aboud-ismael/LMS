@@ -60,6 +60,35 @@ export type Database = {
         }
         Relationships: []
       }
+      enrollments: {
+        Row: {
+          course_id: string | null
+          enrolled_at: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          course_id?: string | null
+          enrolled_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          course_id?: string | null
+          enrolled_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lessons: {
         Row: {
           content: Json | null

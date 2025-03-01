@@ -5,6 +5,8 @@ import {
   getUserProgress,
   getUserAchievements,
   updateLessonProgress as apiUpdateLessonProgress,
+  getEnrollments,
+  enrollInCourse as apiEnrollInCourse,
 } from "@/lib/api";
 
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -17,23 +19,31 @@ export const useSupabase = () => {
   const [achievements, setAchievements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [enrollments, setEnrollments] = useState([]);
 
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
       try {
-        const [coursesData, lessonsData, progressData, achievementsData] =
-          await Promise.all([
-            getCourses(),
-            getUpcomingLessons(user?.id),
-            getUserProgress(user?.id),
-            getUserAchievements(user?.id),
-          ]);
+        const [
+          coursesData,
+          lessonsData,
+          progressData,
+          achievementsData,
+          enrollmentsData,
+        ] = await Promise.all([
+          getCourses(),
+          getUpcomingLessons(user?.id),
+          getUserProgress(user?.id),
+          getUserAchievements(user?.id),
+          getEnrollments(),
+        ]);
 
         setCourses(coursesData);
         setUpcomingLessons(lessonsData);
         setProgress(progressData);
         setAchievements(achievementsData);
+        setEnrollments(enrollmentsData);
       } catch (err) {
         setError(err);
       } finally {
@@ -56,6 +66,17 @@ export const useSupabase = () => {
     }
   };
 
+  const enrollInCourse = async (courseId: string) => {
+    try {
+      await apiEnrollInCourse(courseId);
+      const newEnrollments = await getEnrollments();
+      setEnrollments(newEnrollments);
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
+  };
+
   return {
     courses,
     upcomingLessons,
@@ -64,5 +85,7 @@ export const useSupabase = () => {
     loading,
     error,
     updateLessonProgress,
+    enrollments,
+    enrollInCourse,
   };
 };

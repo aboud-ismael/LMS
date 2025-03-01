@@ -1,76 +1,49 @@
 import React from "react";
-import { Card, CardContent, CardHeader } from "../ui/card";
-import { Clock, ArrowRight } from "lucide-react";
-import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ScrollArea } from "../ui/scroll-area";
+import { Clock } from "lucide-react";
 
-interface LessonItem {
+interface Lesson {
   title: string;
   duration: string;
   course: string;
 }
 
 interface NextUpWidgetProps {
-  lessons?: LessonItem[];
+  lessons?: Lesson[];
 }
 
-const NextUpWidget = ({
-  lessons = [
-    {
-      title: "Introduction to HTML Tags",
-      duration: "15 mins",
-      course: "HTML Fundamentals",
-    },
-    {
-      title: "CSS Selectors Deep Dive",
-      duration: "20 mins",
-      course: "CSS Basics",
-    },
-    {
-      title: "JavaScript Variables",
-      duration: "25 mins",
-      course: "JavaScript Essentials",
-    },
-    {
-      title: "Python Functions",
-      duration: "30 mins",
-      course: "Python Basics",
-    },
-  ],
-}: NextUpWidgetProps) => {
+const NextUpWidget = ({ lessons = [] }: NextUpWidgetProps) => {
   return (
-    <Card className="w-[320px] h-[400px] bg-white">
+    <Card className="w-full lg:w-[320px] bg-white">
       <CardHeader>
-        <h2 className="text-xl font-semibold">Next Up</h2>
-        <p className="text-sm text-gray-500">Your upcoming lessons</p>
+        <CardTitle className="text-lg">Next Up</CardTitle>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[280px] pr-4">
-          <div className="space-y-4">
-            {lessons.map((lesson, index) => (
-              <div
-                key={index}
-                className="p-3 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors"
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-medium text-sm">{lesson.title}</h3>
-                  <div className="flex items-center text-gray-500 text-xs">
-                    <Clock className="w-3 h-3 mr-1" />
+        <ScrollArea className="h-[120px] pr-2 snap-y snap-mandatory overflow-y-auto">
+          {lessons.length > 0 ? (
+            <div className="flex flex-col space-y-2">
+              {lessons.map((lesson, index) => (
+                <div
+                  key={index}
+                  className="p-3 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors snap-start"
+                >
+                  <div className="font-medium mb-1">{lesson.title}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {lesson.course}
+                  </div>
+                  <div className="flex items-center mt-2 text-sm text-muted-foreground">
+                    <Clock className="h-3 w-3 mr-1" />
                     {lesson.duration}
                   </div>
                 </div>
-                <p className="text-xs text-gray-500">{lesson.course}</p>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full mt-2 text-xs justify-between"
-                >
-                  Start Lesson
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-muted-foreground py-8">
+              No upcoming lessons
+            </div>
+          )}
         </ScrollArea>
       </CardContent>
     </Card>
